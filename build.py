@@ -3,10 +3,8 @@ import requests
 SOURCES = [
     "https://iptv-org.github.io/iptv/countries/ma.m3u",
     "https://iptv-org.github.io/iptv/categories/news.m3u",
-    https://iptv-org.github.io/iptv/countries/ma.m3u
-https://iptv-org.github.io/iptv/categories/news.m3u
-https://iptv-org.github.io/iptv/countries/fr.m3u
-https://iptv-org.github.io/iptv/categories/movies.m3u
+    "https://iptv-org.github.io/iptv/countries/fr.m3u",
+    "https://iptv-org.github.io/iptv/categories/movies.m3u",
 ]
 
 def fetch(url):
