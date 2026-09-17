@@ -25,15 +25,24 @@ def merge(sources, filter_languages=None):
         i = 0
         while i < len(lines):
             if lines[i].startswith("#EXTINF"):
-                info, url = lines[i], lines[i+1]
+                info = lines[i]
+                j = i + 1
+                extra = []
+                while j < len(lines) and lines[j].startswith("#EXTVLCOPT"):
+                    extra.append(lines[j])
+                    j += 1
+                if j >= len(lines):
+                    break
+                url = lines[j]
                 keep = True
                 if filter_languages is not None:
                     keep = any(lang in info for lang in filter_languages)
                 if keep and url not in seen:
                     seen.add(url)
                     output.append(info)
+                    output.extend(extra)
                     output.append(url)
-                i += 2
+                i = j + 1
             else:
                 i += 1
     return output
