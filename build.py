@@ -1,36 +1,47 @@
 import requests
 
-SOURCES = [
+SOURCES_FULL = [
     "https://iptv-org.github.io/iptv/countries/ma.m3u",
-    "https://iptv-org.github.io/iptv/categories/news.m3u",
     "https://iptv-org.github.io/iptv/countries/fr.m3u",
-    "https://iptv-org.github.io/iptv/categories/movies.m3u",
+    "https://iptv-org.github.io/iptv/languages/ara.m3u",
 ]
+
+NEWS_SOURCE = "https://iptv-org.github.io/iptv/categories/news.m3u"
+NEWS_LANGUAGES = ["French", "English", "Arabic"]
+
+MOVIES_SOURCE = "https://iptv-org.github.io/iptv/categories/movies.m3u"
+MOVIES_LANGUAGES = ["French", "Arabic"]
 
 def fetch(url):
     r = requests.get(url, timeout=15)
     r.raise_for_status()
     return r.text.splitlines()
 
-def merge(sources):
+def merge(sources, filter_languages=None):
     seen = set()
-    output = ["#EXTM3U"]
+    output = []
     for src in sources:
         lines = fetch(src)
         i = 0
         while i < len(lines):
             if lines[i].startswith("#EXTINF"):
                 info, url = lines[i], lines[i+1]
-                if url not in seen:
+                keep = True
+                if filter_languages is not None:
+                    keep = any(lang in info for lang in filter_languages)
+                if keep and url not in seen:
                     seen.add(url)
                     output.append(info)
                     output.append(url)
                 i += 2
             else:
                 i += 1
-    return "\n".join(output)
+    return output
 
 if __name__ == "__main__":
-    result = merge(SOURCES)
+    all_lines = ["#EXTM3U"]
+    all_lines += merge(SOURCES_FULL)
+    all_lines += merge([NEWS_SOURCE], filter_languages=NEWS_LANGUAGES)
+    all_lines += merge([MOVIES_SOURCE], filter_languages=MOVIES_LANGUAGES)
     with open("playlist.m3u", "w", encoding="utf-8") as f:
-        f.write(result)
+        f.write("\n".join(all_lines))
